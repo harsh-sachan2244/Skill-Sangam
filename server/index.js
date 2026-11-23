@@ -11,9 +11,11 @@ import Audit from "./models/Audit.js";
 import Internship from "./models/Internship.js";
 import Report from "./models/Report.js";
 import User from "./models/User.js";
+import Complaint from "./models/Complaint.js";
 import { publicUser, requireAuth, requireRole, signUser } from "./middleware/auth.js";
 import { saveProof } from "./services/uploads.js";
 import { id, withId } from "./utils/serialize.js";
+
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
@@ -168,6 +170,133 @@ app.patch("/api/applications/:id", requireAuth, requireRole("employer"), asyncRo
   const application = await Application.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
   data(res, { ...withId(application), studentId: id(application.studentId), internshipId: id(application.internshipId) });
 }));
+
+// ===============================
+// COMPLAINT MANAGEMENT APIs
+// ===============================
+
+// 1. Student submits a complaint
+app.post(
+  "/api/complaints",
+  requireAuth,
+  requireRole("student"),
+  asyncRoute(async (req, res) => {
+    const { subject, category, description } = req.body;
+
+    if (
+      typeof subject !== "string" ||
+      typeof category !== "string" ||
+      typeof description !== "string" ||
+      subject.trim().length < 5 ||
+      description.trim().length < 20
+    ) {
+      return res.status(400).json({
+        message: "Enter a valid subject and description (at least 20 characters).",
+      });
+    }
+
+    const complaint = await Complaint.create({
+      studentId: req.user._id,
+      subject: subject.trim(),
+      category,
+      description: description.trim(),
+    });
+
+    data(res, withId(complaint), 201);
+  }),
+);
+
+// 2. Student views their own complaints
+app.get(
+  "/api/complaints/my",
+  requireAuth,
+  requireRole("student"),
+  asyncRoute(async (req, res) => {
+    const complaints = await Complaint.find({
+      studentId: req.user._id,
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    data(res, complaints.map(withId));
+  }),
+);
+
+// 3. Admin views all complaints
+app.get(
+  "/api/complaints",
+  requireAuth,
+  requireRole("admin"),
+  asyncRoute(async (req, res) => {
+    const complaints = await Complaint.find()
+      .populate("studentId", "name email")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    data(res, complaints.map(withId));
+  }),
+);
+
+// 4. Admin updates complaint status and response
+app.patch(
+  "/api/complaints/:id",
+  requireAuth,
+  requireRole("admin"),
+  asyncRoute(async (req, res) => {
+    const { status, adminResponse } = req.body;
+
+    const allowedStatuses = [
+      "Pending",
+      "In Progress",
+      "Resolved",
+      "Rejected",
+    ];
+
+    if (status !== undefined && !allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        message: "Invalid complaint status.",
+      });
+    }
+
+    if (
+      adminResponse !== undefined &&
+      (typeof adminResponse !== "string" ||
+        adminResponse.trim().length > 2000)
+    ) {
+      return res.status(400).json({
+        message: "Admin response must be 2000 characters or fewer.",
+      });
+    }
+
+    if (status === undefined && adminResponse === undefined) {
+      return res.status(400).json({
+        message: "Provide a status or admin response to update.",
+      });
+    }
+
+    const complaint = await Complaint.findById(req.params.id);
+
+    if (!complaint) {
+      return res.status(404).json({
+        message: "Complaint not found.",
+      });
+    }
+
+    if (status !== undefined) {
+      complaint.status = status;
+    }
+
+    if (adminResponse !== undefined) {
+      complaint.adminResponse = adminResponse.trim();
+      complaint.respondedBy = req.user._id;
+      complaint.respondedAt = new Date();
+    }
+
+    await complaint.save();
+
+    data(res, withId(complaint));
+  }),
+);
 
 app.get("/api/reports", requireAuth, requireRole("admin"), asyncRoute(async (req, res) => data(res, (await Report.find().sort({ createdAt: -1 }).lean()).map(withId))));
 app.post("/api/reports", requireAuth, requireRole("student"), asyncRoute(async (req, res) => data(res, withId(await Report.create({ ...req.body, studentId: req.user._id, status: "Open" })), 201)));

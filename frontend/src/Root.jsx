@@ -19,6 +19,7 @@ import StudentDashboard from "./pages/student/Dashboard";
 import Browse from "./pages/student/Browse";
 import InternshipDetail from "./pages/student/InternshipDetail";
 import Applications from "./pages/student/Applications";
+import Complaints from "./pages/student/Complaints";
 import Profile from "./pages/student/Profile";
 import EmployerDashboard from "./pages/employer/Dashboard";
 import EmployerHome from "./pages/employer/Home";
@@ -29,6 +30,7 @@ import CompanyProfile from "./pages/employer/CompanyProfile";
 import AdminDashboard from "./pages/admin/Dashboard";
 import Approvals from "./pages/admin/Approvals";
 import Reports from "./pages/admin/Reports";
+import AdminComplaints from "./pages/admin/Complaints";
 import Audit from "./pages/admin/Audit";
 
 function Home() {
@@ -193,6 +195,14 @@ export default function Root() {
               }
             />
             <Route
+  path="/student/complaints"
+  element={
+    <ProtectedPage role="student" layout={StudentLayout}>
+      <Complaints />
+    </ProtectedPage>
+  }
+/>
+            <Route
               path="/student/profile"
               element={
                 <ProtectedPage role="student" layout={StudentLayout}>
@@ -296,6 +306,14 @@ export default function Root() {
                 </ProtectedPage>
               }
             />
+            <Route
+  path="/admin/complaints"
+  element={
+    <ProtectedPage role="admin" layout={AdminLayout}>
+      <AdminComplaints />
+    </ProtectedPage>
+  }
+/>
             <Route
               path="/admin/audit"
               element={
