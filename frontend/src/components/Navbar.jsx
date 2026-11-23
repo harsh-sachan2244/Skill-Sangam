@@ -6,11 +6,14 @@ const linksByRole = {
     { label: "Dashboard", to: "/student", end: true },
     { label: "Browse", to: "/student/browse" },
     { label: "Applications", to: "/student/applications" },
+    { label: "Messages", to: "/messages" },
+    
   ],
   employer: [
     { label: "Dashboard", to: "/employer", end: true },
     { label: "Post Internship", to: "/employer/internships/new" },
     { label: "Applicants", to: "/employer/internships", end: true },
+    { label: "Messages", to: "/messages" },
   ],
   admin: [
     { label: "Dashboard", to: "/admin", end: true },
