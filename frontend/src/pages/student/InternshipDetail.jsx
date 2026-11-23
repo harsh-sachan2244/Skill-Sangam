@@ -106,6 +106,11 @@ export default function InternshipDetail() {
             >
               {applied ? "Applied" : "Apply now"}
             </button>
+            {applied && (
+  <Link className="button secondary full" to={`/messages/${id}/${item.employerId}`}>
+    Message the employer
+  </Link>
+)}
             <button className="text-button" onClick={() => setModal("report")}>
               Report this employer
             </button>

@@ -3,22 +3,24 @@ import { Link, NavLink } from "react-router-dom";
 
 const linksByRole = {
   student: [
-  { label: "Dashboard", to: "/student", end: true },
-  { label: "Browse", to: "/student/browse" },
-  { label: "Applications", to: "/student/applications" },
-  { label: "Complaints", to: "/student/complaints" },
-],
+    { label: "Dashboard", to: "/student", end: true },
+    { label: "Browse", to: "/student/browse" },
+    { label: "Applications", to: "/student/applications" },
+  ],
   employer: [
     { label: "Dashboard", to: "/employer", end: true },
     { label: "Post Internship", to: "/employer/internships/new" },
     { label: "Applicants", to: "/employer/internships", end: true },
+    { label: "Messages", to: "/messages" },
   ],
  admin: [
-  { label: "Dashboard", to: "/admin", end: true },
-  { label: "Users", to: "/admin/employers" },
-  { label: "Verifications", to: "/admin/verifications" },
-  { label: "Complaints", to: "/admin/complaints" },
+    { label: "Dashboard", to: "/student", end: true },
+  { label: "Browse", to: "/student/browse" },
+  { label: "Applications", to: "/student/applications" },
+  { label: "Complaints", to: "/student/complaints" },
+  { label: "Messages", to: "/messages" },
 ],
+
 };
 
 const roleLabels = { student: "Student", employer: "Employer", admin: "Admin" };

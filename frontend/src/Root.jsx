@@ -15,6 +15,8 @@ import PublicBrowse from "./pages/public/PublicBrowse";
 import StaticPage from "./pages/public/StaticPage";
 import Unauthorized from "./pages/shared/Unauthorized";
 import Account from "./pages/shared/Account";
+import Inbox from "./pages/shared/Inbox";
+import Chat from "./pages/shared/Chat";
 import StudentDashboard from "./pages/student/Dashboard";
 import Browse from "./pages/student/Browse";
 import InternshipDetail from "./pages/student/InternshipDetail";
@@ -77,6 +79,21 @@ function AccountPage() {
       <Layout>
         <Account />
       </Layout>
+    </ProtectedRoute>
+  );
+}
+
+function MessagesPage({ children }) {
+  const { user } = useAuth();
+  const Layout =
+    user?.role === "student"
+      ? StudentLayout
+      : user?.role === "employer"
+        ? EmployerLayout
+        : AdminLayout;
+  return (
+    <ProtectedRoute>
+      <Layout>{children}</Layout>
     </ProtectedRoute>
   );
 }
@@ -162,6 +179,22 @@ export default function Root() {
               }
             />
             <Route path="/account" element={<AccountPage />} />
+            <Route
+  path="/messages"
+  element={
+    <MessagesPage>
+      <Inbox />
+    </MessagesPage>
+  }
+/>
+<Route
+  path="/messages/:internshipId/:userId"
+  element={
+    <MessagesPage>
+      <Chat />
+    </MessagesPage>
+  }
+/>
             <Route
               path="/student"
               element={
