@@ -99,9 +99,6 @@ export default function Applicants() {
                     </button>
                   </>
                 )}
-                <Link className="text-button" to={`/messages/${id}/${a.student?.id}`}>
-  Message
-</Link>
               </div>
             </div>
           ))}
